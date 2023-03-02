@@ -1,0 +1,23 @@
+{
+  "apps": [
+    {
+      "name": "backend",
+      "script": "index.js",
+      "env": {
+        "PORT": 8001,
+        "NODE_ENV": "development",
+        "DATABASE": "mongodb+srv://sachinganesh:VBqR5HYhuzUfhQZa@cluster0.5lqvyk6.mongodb.net/?retryWrites=true&w=majority",
+        "JWT_SECRET": "dc_batman_superman_wonderwoman_Dragonballz-flash-greenArrow",
+        "JWT_EXPIRES_IN": "90d",
+        "JWT_COOKIE_EXPIRES_IN": "90",
+        "EMAIL_USERNAME": "98bb351f59eae3",
+        "EMAIL_PASSWORD": "a7024e03f80869",
+        "EMAIL_HOST": "smtp.mailtrap.io",
+        "EMAIL_PORT": "2525",
+        "EMAIL_FROM": "jsachinganesh",
+        "EMAIL_SEND_PASS": "rviftbqehogwdvcs",
+        "CLIENT_IP": "http://localhost:8001"
+      }
+    }
+  ]
+}
