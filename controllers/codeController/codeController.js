@@ -25,6 +25,7 @@ const codeHelpers_1 = require("./codeHelpers");
 const userTController_1 = require("../userTController");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const __1 = require("../..");
+const config_1 = require("../../config");
 const exec = util_1.default.promisify(child_process_1.default.exec);
 // const redisClient = createClient();
 // redisClient.connect().then(()=>{
@@ -66,7 +67,7 @@ exports.saveToDb = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 
 }));
 exports.runCode = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let rsData = yield __1.redisCount.getCurrentRedisCount();
-    if (rsData == null || Number(rsData) < 2) {
+    if (rsData == null || Number(rsData) < config_1.MAX_CODE_RUN) {
         let { lang, code, inputs } = req.body;
         code = (0, base_64_1.decode)(code);
         console.log(code);
