@@ -9,17 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../config");
 const email_1 = require("../utils/email");
 function sendEmailHandler(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = new email_1.Email({
-            isEmail: 'jsachinganesh@gmail.com',
+            isEmail: config_1.EMAIL_CONFIG,
             name: 'sachin'
         }, 'test');
         try {
-            const da = yield data.send();
+            const emailRes = yield data.send();
             res.json({
-                'done': da
+                'done': emailRes
             });
         }
         catch (error) {

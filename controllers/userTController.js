@@ -30,7 +30,6 @@ const findUserController = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.findUserController = findUserController;
 const userCreate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    debugger;
     try {
         let userData = users_1.default.build(req.body);
         userData = yield users_1.default.create(userData);

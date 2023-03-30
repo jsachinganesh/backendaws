@@ -30,7 +30,7 @@ const codeSchema = new mongoose_1.default.Schema({
         required: [true, 'Code have have a name'],
         trim: true,
         maxLength: [100, 'A code must have string length less than 100 letters'],
-        minLength: [1, 'A code must have  string length more than 0 letters']
+        minLength: [1, 'A code must have  string length more than 0 letters.']
     },
     code: {
         type: String,

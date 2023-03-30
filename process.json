@@ -16,8 +16,7 @@
         "EMAIL_PORT": "2525",
         "EMAIL_FROM": "jsachinganesh",
         "EMAIL_SEND_PASS": "rviftbqehogwdvcs",
-        "CLIENT_IP": "http://localhost:8001",
-        "MAX_CODE_RUN":"4"
+        "CLIENT_IP": "http://localhost:8001"
       }
     }
   ]

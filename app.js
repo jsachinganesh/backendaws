@@ -8,7 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const codeRouter_1 = __importDefault(require("./routes/codeRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
-const tourRouter_1 = __importDefault(require("./routes/tourRouter"));
 const emailRouter_1 = __importDefault(require("./routes/emailRouter"));
 const config_1 = require("./config");
 const appError_1 = __importDefault(require("./utils/appError"));
@@ -19,7 +18,6 @@ const helmet_1 = __importDefault(require("helmet"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 // @ts-ignore
 const xss_clean_1 = __importDefault(require("xss-clean"));
-const hpp_1 = __importDefault(require("hpp"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 //middlewares
@@ -27,6 +25,9 @@ app.use((0, helmet_1.default)());
 if (config_1.environment === 'development') {
     app.use((0, morgan_1.default)("dev"));
 }
+/**
+* User can't make more than 100 request in 1hour
+*/
 const limitrate = (0, express_rate_limit_1.default)({
     max: 100,
     windowMs: 60 * 60 * 1000,
@@ -37,27 +38,19 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json({ limit: '20kb' }));
 app.use((0, express_mongo_sanitize_1.default)());
 app.use((0, xss_clean_1.default)());
-app.use((0, hpp_1.default)({
-    whitelist: [
-        'duration'
-    ]
-}));
 app.use(express_1.default.static(`${__dirname}/../public`));
-//tours
+/**
+* to check health check
+*/
 app.get('/check', (req, res) => {
     res.send({
         status: 'running'
     });
 });
 app.use('/api/v1/email', emailRouter_1.default);
-app.use('/api/v1/tours', tourRouter_1.default);
 app.use('/api/v1/users', userRouter_1.default);
 app.use('/api/v1/code', codeRouter_1.default);
 app.all('*', (req, res, next) => {
-    // res.status(404).json({
-    //     status:'fail',
-    //     message:`Can't find ${req.originalUrl} on this server`
-    // });
     const err = new appError_1.default(`Can't find resource`, 404);
     next(err);
 });

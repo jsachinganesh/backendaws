@@ -38,7 +38,7 @@ class Email {
         const transport = nodemailer_1.default.createTransport({
             service: 'gmail',
             auth: {
-                user: 'jsachinganesh@gmail.com',
+                user: config_1.EMAIL_CONFIG,
                 pass: config_1.EMAIL_SEND_PASS
             }
         });

@@ -8,6 +8,9 @@ const fs_1 = __importDefault(require("fs"));
 const util_1 = __importDefault(require("util"));
 const child_process_1 = __importDefault(require("child_process"));
 const exec = util_1.default.promisify(child_process_1.default.exec);
+/**
+* Return the CMD to excute in docker container. The CMD that responsible to run our code
+*/
 function getExecCMD(lang) {
     let obj = {
         py: `"python3 codeFile.py<testcases.txt"`,
@@ -17,6 +20,9 @@ function getExecCMD(lang) {
     return obj[lang];
 }
 exports.getExecCMD = getExecCMD;
+/**
+* Return the CMD to start the container
+*/
 function dockerRunCMD(lang) {
     let obj = {
         py: "docker run -d -it python:v1 /bin/bash",
@@ -32,6 +38,9 @@ function dockerKill(file1, file2, id) {
     exec(`docker kill ${id}`).then(() => console.log("Container Stopped"));
 }
 exports.dockerKill = dockerKill;
+/**
+* To delete file
+*/
 function fileUnliker(file = null) {
     if (file) {
         fs_1.default.unlink(file, (err) => {
