@@ -24,8 +24,6 @@ const base_64_1 = require("base-64");
 const codeHelpers_1 = require("./codeHelpers");
 const userTController_1 = require("../userTController");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const __1 = require("../..");
-const config_1 = require("../../config");
 const exec = util_1.default.promisify(child_process_1.default.exec);
 /**
 * Its a middleware function to save user code. If the user is login.
@@ -68,117 +66,115 @@ exports.saveToDb = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 
 exports.runCode = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // Getting the number of active code RUNS
     // currently the max limit is only 2 because of the system limitation
-    let rsData = yield __1.redisCount.getCurrentRedisCount();
-    if (rsData == null || Number(rsData) < config_1.MAX_CODE_RUN) {
-        let { lang, code, inputs } = req.body;
-        // We are getting the code in base64 format from client. So we need to decode.
-        code = (0, base_64_1.decode)(code);
-        console.log(code);
-        // Getting the CMD to start the container
-        const runContainer = (0, codeHelpers_1.dockerRunCMD)(lang);
-        // Getting the CMD to execute user code in the container.
-        // This CMD will run inside of container. 
-        const dockerCmdToExecuteCode = (0, codeHelpers_1.getExecCMD)(lang);
-        let sendToClient;
-        const extention = `.${lang}`;
-        const codeFile = `${(0, uuid_1.v1)()}${extention}`;
-        const inputFile = `${(0, uuid_1.v4)()}.txt`;
-        try {
-            //Creating files for code and input
-            yield fs_1.default.promises.writeFile(codeFile, code);
-            yield fs_1.default.promises.writeFile(inputFile, inputs);
-        }
-        catch (error) {
-            fileUnliker(codeFile);
-            fileUnliker(inputFile);
-            return res.send({
-                status: "success",
-                data: [],
-                error: {
-                    message: JSON.stringify(error),
-                    code: 402,
-                    err: error,
-                },
-            });
-        }
-        // Updating current active users
-        if (!rsData || Number(rsData) <= 0) {
-            yield __1.redisCount.setCountRedis(1);
-        }
-        else if (Number(rsData) == 1) {
-            yield __1.redisCount.setCountRedis(2);
-        }
-        let resp;
-        try {
-            // Starting our container
-            resp = yield exec(runContainer);
-        }
-        catch (error) {
-            fileUnliker(codeFile);
-            fileUnliker(inputFile);
-            yield __1.redisCount.setCountRedis(Number(rsData) - 1);
-            return res.send({
-                status: "success",
-                data: JSON.stringify(error),
-                error: {
-                    message: "",
-                    code: 0,
-                    err: error,
-                },
-            });
-        }
-        const id = resp === null || resp === void 0 ? void 0 : resp.stdout.substring(0, 12);
-        // Coping the files we created(Code,Input) files to docker container with docker cp CMD and chaning CMD to run on docker which will -
-        // Execute out code
-        const cmd = `docker cp ${codeFile} ${id}:/usr/src/app/codeFile${extention} && docker cp ${inputFile} ${id}:/usr/src/app/testcases.txt && docker exec ${id} bash -c ${dockerCmdToExecuteCode}`;
-        try {
-            debugger;
-            // Executing the CMD in out docker container with setTimeout of 5 seconds
-            // This will return the output of user code
-            sendToClient = (yield exec(cmd, { timeout: 20000, maxBuffer: 50000 })).stdout;
-            //deleting the files
-            fileUnliker(codeFile);
-            fileUnliker(inputFile);
-            // deleting container 
-            yield exec(`docker rm -f ${id}`);
-            console.log("Container Stopped");
-            // updating active users
-            yield __1.redisCount.setCountRedis(Number(rsData) - 1);
-            res.send({
-                status: "success",
-                data: sendToClient,
-                error: {
-                    message: "",
-                    code: 0,
-                    err: null,
-                },
-            });
-        }
-        catch (err) {
-            debugger;
-            let tempErrorString = err.toString();
-            let len = tempErrorString.length;
-            let returnString = tempErrorString.substring(len - cmd.length, len);
-            fileUnliker(codeFile);
-            fileUnliker(inputFile);
-            console.log("hello");
-            yield exec(`docker rm -f ${id}`);
-            console.log("Container Stopped");
-            yield __1.redisCount.setCountRedis(Number(rsData) - 1);
-            res.send({
-                status: "success",
-                data: returnString,
-                error: {
-                    message: "",
-                    code: 0,
-                    err: err,
-                },
-            });
-        }
+    // let rsData = await redisCount.getCurrentRedisCount();
+    // if (rsData == null || Number(rsData) < MAX_CODE_RUN) {
+    let { lang, code, inputs } = req.body;
+    // We are getting the code in base64 format from client. So we need to decode.
+    code = (0, base_64_1.decode)(code);
+    console.log(code);
+    // Getting the CMD to start the container
+    const runContainer = (0, codeHelpers_1.dockerRunCMD)(lang);
+    // Getting the CMD to execute user code in the container.
+    // This CMD will run inside of container. 
+    const dockerCmdToExecuteCode = (0, codeHelpers_1.getExecCMD)(lang);
+    let sendToClient;
+    const extention = `.${lang}`;
+    const codeFile = `${(0, uuid_1.v1)()}${extention}`;
+    const inputFile = `${(0, uuid_1.v4)()}.txt`;
+    try {
+        //Creating files for code and input
+        yield fs_1.default.promises.writeFile(codeFile, code);
+        yield fs_1.default.promises.writeFile(inputFile, inputs);
     }
-    else {
-        res.send("TWo many people");
+    catch (error) {
+        fileUnliker(codeFile);
+        fileUnliker(inputFile);
+        return res.send({
+            status: "success",
+            data: [],
+            error: {
+                message: JSON.stringify(error),
+                code: 402,
+                err: error,
+            },
+        });
     }
+    // Updating current active users
+    // if (!rsData || Number(rsData) <= 0) {
+    //   await redisCount.setCountRedis(1);
+    // } else if (Number(rsData) == 1) {
+    //   await redisCount.setCountRedis(2);
+    // }
+    let resp;
+    try {
+        // Starting our container
+        resp = yield exec(runContainer);
+    }
+    catch (error) {
+        fileUnliker(codeFile);
+        fileUnliker(inputFile);
+        // await redisCount.setCountRedis(Number(rsData) - 1);
+        return res.send({
+            status: "success",
+            data: JSON.stringify(error),
+            error: {
+                message: "",
+                code: 0,
+                err: error,
+            },
+        });
+    }
+    const id = resp === null || resp === void 0 ? void 0 : resp.stdout.substring(0, 12);
+    // Coping the files we created(Code,Input) files to docker container with docker cp CMD and chaning CMD to run on docker which will -
+    // Execute out code
+    const cmd = `docker cp ${codeFile} ${id}:/usr/src/app/codeFile${extention} && docker cp ${inputFile} ${id}:/usr/src/app/testcases.txt && docker exec ${id} bash -c ${dockerCmdToExecuteCode}`;
+    try {
+        debugger;
+        // Executing the CMD in out docker container with setTimeout of 5 seconds
+        // This will return the output of user code
+        sendToClient = (yield exec(cmd, { timeout: 20000, maxBuffer: 50000 })).stdout;
+        //deleting the files
+        fileUnliker(codeFile);
+        fileUnliker(inputFile);
+        // deleting container 
+        yield exec(`docker rm -f ${id}`);
+        console.log("Container Stopped");
+        // updating active users
+        // await redisCount.setCountRedis(Number(rsData) - 1);
+        res.send({
+            status: "success",
+            data: sendToClient,
+            error: {
+                message: "",
+                code: 0,
+                err: null,
+            },
+        });
+    }
+    catch (err) {
+        debugger;
+        let tempErrorString = err.toString();
+        let len = tempErrorString.length;
+        let returnString = tempErrorString.substring(len - cmd.length, len);
+        fileUnliker(codeFile);
+        fileUnliker(inputFile);
+        console.log("hello");
+        yield exec(`docker rm -f ${id}`);
+        console.log("Container Stopped");
+        // await redisCount.setCountRedis(Number(rsData) - 1);
+        res.send({
+            status: "success",
+            data: returnString,
+            error: {
+                message: "",
+                code: 0,
+                err: err,
+            },
+        });
+    }
+    // } else {
+    //   res.send("TWo many people");
+    // }
 }));
 exports.createCodeDoc = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { lang, name, des } = req.body;
